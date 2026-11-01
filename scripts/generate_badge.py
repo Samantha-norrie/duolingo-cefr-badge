@@ -1,6 +1,7 @@
 """Generate an SVG badge of a Duolingo profile and CEFR levels per language.
 
-The top row shows the avatar, total XP and leaderboard top 3 finishes; below
+The top row shows the avatar, streak, total XP, current league and leaderboard
+top 3 finishes; below
 it is a column per language with its CEFR level and Duolingo Score.
 
 Reads the Duolingo JWT from the DUOLINGO_JWT environment variable and writes
@@ -38,7 +39,7 @@ PADDING = 10
 
 # Profile row above the language columns.
 AVATAR_SIZE = 72
-STAT_WIDTH = 130
+STAT_WIDTH = 112
 PROFILE_HEIGHT = 96
 HEIGHT = PROFILE_HEIGHT + 120
 
@@ -119,13 +120,18 @@ def achieved_cefr(course):
 
 
 def fetch_profile(user, jwt):
-    """Avatar (as a data URI), total XP and leaderboard top 3 finishes."""
+    """Avatar (as a data URI), streak, total XP, league and top 3 finishes."""
     # picture is a protocol-relative CDN URL; sizes are path suffixes.
     avatar = fetch(f"https:{user['picture']}/xlarge")
     leaderboard = json.loads(fetch(f"{LEADERBOARD_API}/users/{user['id']}", jwt))
+    # tier indexes league_ids; it's missing when not in a league this week.
+    tier = leaderboard.get("tier")
+    leagues = leaderboard["league_ids"]
     return {
         "avatar": "data:image/png;base64," + base64.b64encode(avatar).decode(),
+        "streak": user["streak"],
         "total_xp": user["totalXp"],
+        "league": leagues[tier] if tier is not None and 0 <= tier < len(leagues) else "None",
         "top_three": leaderboard["stats"]["top_three_finishes"],
     }
 
@@ -158,7 +164,9 @@ def render_profile(profile, colors, width):
   <image x="{avatar_x}" y="{avatar_y}" width="{AVATAR_SIZE}" height="{AVATAR_SIZE}" href="{profile["avatar"]}" clip-path="url(#avatar)"/>'''
     ]
     stats = [
+        (f"{profile['streak']:,}", "Day streak", "streak"),
         (f"{profile['total_xp']:,}", "Total XP", "xp"),
+        (escape(profile["league"]), "Current league", "league"),
         (f"{profile['top_three']:,}", "Top 3 finishes", "top-three"),
     ]
     for i, (value, label, css_class) in enumerate(stats):
@@ -175,7 +183,7 @@ def render_profile(profile, colors, width):
 
 def render_svg(profile, languages, theme):
     colors = THEMES[theme]
-    profile_width = PADDING * 2 + 14 + AVATAR_SIZE + 10 + STAT_WIDTH * 2
+    profile_width = PADDING * 2 + 14 + AVATAR_SIZE + 10 + STAT_WIDTH * 4
     width = max(PADDING * 2 + COLUMN_WIDTH * max(len(languages), 1), profile_width)
     profile_svg = render_profile(profile, colors, width)
     top = PROFILE_HEIGHT
@@ -208,8 +216,10 @@ def render_svg(profile, languages, theme):
     .score {{ font-size: 14px; font-weight: 700; fill: #1cb0f6; }}
     .label {{ font-size: 9px; fill: {colors['label']}; }}
     .stat {{ font-size: 22px; font-weight: 800; }}
-    .xp {{ fill: #ff9600; }}
-    .top-three {{ fill: #ffc800; }}
+    .streak {{ fill: #ff9600; }}
+    .xp {{ fill: #ffc800; }}
+    .league {{ fill: #ce82ff; }}
+    .top-three {{ fill: #ff86d0; }}
     .stat-label {{ font-size: 11px; fill: {colors['label']}; }}
   </style>
   <rect x="0.5" y="0.5" width="{width - 1}" height="{HEIGHT - 1}" rx="12" fill="{colors['background']}" stroke="{colors['border']}"/>
@@ -232,7 +242,10 @@ def main():
     for theme, output in outputs.items():
         with open(output, "w") as f:
             f.write(render_svg(profile, languages, theme))
-    print(f"Total XP: {profile['total_xp']}, top 3 finishes: {profile['top_three']}")
+    print(
+        f"Streak: {profile['streak']}, total XP: {profile['total_xp']}, "
+        f"league: {profile['league']}, top 3 finishes: {profile['top_three']}"
+    )
     for language in languages:
         print(f"{language['title']}: {language['cefr']} {language['score']}/{language['max_score']}")
 
