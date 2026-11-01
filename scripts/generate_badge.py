@@ -117,11 +117,11 @@ def render_svg(languages):
         title = escape(language["title"])
         if language["flag"]:
             title_width = text_width(language["title"])
-            title_x = x - (title_width + FLAG_GAP + FLAG_WIDTH) / 2
-            flag_x = title_x + title_width + FLAG_GAP
+            flag_x = x - (FLAG_WIDTH + FLAG_GAP + title_width) / 2
+            title_x = flag_x + FLAG_WIDTH + FLAG_GAP
             header = (
-                f'''  <text x="{title_x:.1f}" y="32" class="title start">{title}</text>
-  <image x="{flag_x:.1f}" y="{32 - 13}" width="{FLAG_WIDTH}" height="{FLAG_HEIGHT}" href="{language["flag"]}"/>'''
+                f'''  <image x="{flag_x:.1f}" y="{32 - 13}" width="{FLAG_WIDTH}" height="{FLAG_HEIGHT}" href="{language["flag"]}"/>
+  <text x="{title_x:.1f}" y="32" class="title start">{title}</text>'''
             )
         else:
             header = f'  <text x="{x}" y="32" class="title">{title}</text>'
