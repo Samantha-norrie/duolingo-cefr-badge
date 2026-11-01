@@ -18,3 +18,5 @@ To embed elsewhere (e.g. your profile README):
 ```markdown
 ![Duolingo levels](https://raw.githubusercontent.com/Samantha-norrie/duolingo-cefr-badge/main/duolingo.svg)
 ```
+
+Flags in `assets/flags/` are Duolingo's own course flag artwork (copied from duolingo.com), named by language code.

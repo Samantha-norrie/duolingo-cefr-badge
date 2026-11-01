@@ -9,6 +9,7 @@ import json
 import os
 import sys
 import urllib.request
+from pathlib import Path
 from xml.sax.saxutils import escape
 
 API = "https://www.duolingo.com/2017-06-30"
@@ -18,31 +19,10 @@ USER_AGENT = (
 )
 MIN_SCORE = 7
 
-# Duolingo learning language code -> country code for the flag shown beside it.
-FLAG_COUNTRIES = {
-    "ar": "eg",
-    "de": "de",
-    "el": "gr",
-    "en": "us",
-    "es": "es",
-    "fr": "fr",
-    "he": "il",
-    "hi": "in",
-    "it": "it",
-    "ja": "jp",
-    "ko": "kr",
-    "nl": "nl",
-    "pl": "pl",
-    "pt": "br",
-    "ru": "ru",
-    "sv": "se",
-    "tr": "tr",
-    "uk": "ua",
-    "vi": "vn",
-    "zh": "cn",
-}
+# Duolingo flag SVGs, named by learning language code.
+FLAGS_DIR = Path(__file__).resolve().parent.parent / "assets" / "flags"
 FLAG_WIDTH = 21
-FLAG_HEIGHT = 14
+FLAG_HEIGHT = 16
 FLAG_GAP = 6
 
 COLUMN_WIDTH = 140
@@ -70,19 +50,11 @@ def get(path, jwt):
 
 
 def flag_data_uri(language_code):
-    """Flag PNG as a data URI, since SVGs rendered as images can't load URLs."""
-    country = FLAG_COUNTRIES.get(language_code)
-    if not country:
+    """Flag SVG as a data URI, since SVGs rendered as images can't load URLs."""
+    path = FLAGS_DIR / f"{language_code}.svg"
+    if not path.exists():
         return None
-    try:
-        request = urllib.request.Request(
-            f"https://flagcdn.com/h40/{country}.png", headers={"User-Agent": USER_AGENT}
-        )
-        with urllib.request.urlopen(request, timeout=30) as response:
-            png = response.read()
-    except OSError:
-        return None
-    return "data:image/png;base64," + base64.b64encode(png).decode()
+    return "data:image/svg+xml;base64," + base64.b64encode(path.read_bytes()).decode()
 
 
 def text_width(text, font_size=14):
@@ -149,7 +121,7 @@ def render_svg(languages):
             flag_x = title_x + title_width + FLAG_GAP
             header = (
                 f'''  <text x="{title_x:.1f}" y="32" class="title start">{title}</text>
-  <image x="{flag_x:.1f}" y="{32 - 12}" width="{FLAG_WIDTH}" height="{FLAG_HEIGHT}" href="{language["flag"]}"/>'''
+  <image x="{flag_x:.1f}" y="{32 - 13}" width="{FLAG_WIDTH}" height="{FLAG_HEIGHT}" href="{language["flag"]}"/>'''
             )
         else:
             header = f'  <text x="{x}" y="32" class="title">{title}</text>'
