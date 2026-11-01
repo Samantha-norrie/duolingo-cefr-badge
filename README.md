@@ -5,7 +5,7 @@
   <img alt="Duolingo levels" src="duolingo.svg">
 </picture>
 
-A daily GitHub Action fetches each Duolingo course and renders `duolingo.svg`, showing every language with a Duolingo Score of 7 or higher:
+A daily GitHub Action fetches your Duolingo profile and courses and renders `duolingo.svg`. The top row shows your avatar, total XP and number of top 3 leaderboard finishes. Below it is every language with a Duolingo Score of 7 or higher:
 
 - **CEFR level**: level of the last fully completed path section (`Pre-A1` if none yet, `N/A` for courses not aligned to CEFR).
 - **Duolingo Score**: current score out of the course maximum.
