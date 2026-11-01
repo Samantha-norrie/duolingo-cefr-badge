@@ -18,6 +18,33 @@ USER_AGENT = (
 )
 MIN_SCORE = 7
 
+# Duolingo learning language code -> country code for the flag shown beside it.
+FLAG_COUNTRIES = {
+    "ar": "eg",
+    "de": "de",
+    "el": "gr",
+    "en": "us",
+    "es": "es",
+    "fr": "fr",
+    "he": "il",
+    "hi": "in",
+    "it": "it",
+    "ja": "jp",
+    "ko": "kr",
+    "nl": "nl",
+    "pl": "pl",
+    "pt": "br",
+    "ru": "ru",
+    "sv": "se",
+    "tr": "tr",
+    "uk": "ua",
+    "vi": "vn",
+    "zh": "cn",
+}
+FLAG_WIDTH = 21
+FLAG_HEIGHT = 14
+FLAG_GAP = 6
+
 COLUMN_WIDTH = 140
 HEIGHT = 120
 PADDING = 10
@@ -40,6 +67,38 @@ def get(path, jwt):
     )
     with urllib.request.urlopen(request, timeout=30) as response:
         return json.load(response)
+
+
+def flag_data_uri(language_code):
+    """Flag PNG as a data URI, since SVGs rendered as images can't load URLs."""
+    country = FLAG_COUNTRIES.get(language_code)
+    if not country:
+        return None
+    try:
+        request = urllib.request.Request(
+            f"https://flagcdn.com/h40/{country}.png", headers={"User-Agent": USER_AGENT}
+        )
+        with urllib.request.urlopen(request, timeout=30) as response:
+            png = response.read()
+    except OSError:
+        return None
+    return "data:image/png;base64," + base64.b64encode(png).decode()
+
+
+def text_width(text, font_size=14):
+    """Rough rendered width of semibold sans-serif text, for centering."""
+    narrow, wide = set("fijlrtI "), set("mwMW")
+    width = 0
+    for char in text:
+        if char in narrow:
+            width += 0.32
+        elif char in wide:
+            width += 0.85
+        elif char.isupper():
+            width += 0.68
+        else:
+            width += 0.56
+    return width * font_size
 
 
 def achieved_cefr(course):
@@ -69,6 +128,7 @@ def fetch_languages(jwt):
         languages.append(
             {
                 "title": summary["title"],
+                "flag": flag_data_uri(summary["learningLanguage"]),
                 "cefr": achieved_cefr(course),
                 "score": score["reachedScore"],
                 "max_score": score["pathEndingScore"],
@@ -82,8 +142,19 @@ def render_svg(languages):
     columns = []
     for i, language in enumerate(languages):
         x = PADDING + COLUMN_WIDTH * i + COLUMN_WIDTH / 2
+        title = escape(language["title"])
+        if language["flag"]:
+            title_width = text_width(language["title"])
+            title_x = x - (title_width + FLAG_GAP + FLAG_WIDTH) / 2
+            flag_x = title_x + title_width + FLAG_GAP
+            header = (
+                f'''  <text x="{title_x:.1f}" y="32" class="title start">{title}</text>
+  <image x="{flag_x:.1f}" y="{32 - 12}" width="{FLAG_WIDTH}" height="{FLAG_HEIGHT}" href="{language["flag"]}"/>'''
+            )
+        else:
+            header = f'  <text x="{x}" y="32" class="title">{title}</text>'
         columns.append(
-            f"""  <text x="{x}" y="32" class="title">{escape(language["title"])}</text>
+            f"""{header}
   <text x="{x}" y="70" class="cefr">{escape(language["cefr"])}</text>
   <text x="{x}" y="94" class="score">{language["score"]}/{language["max_score"]}</text>
   <text x="{x}" y="108" class="label">Duolingo Score</text>"""
@@ -92,6 +163,7 @@ def render_svg(languages):
   <style>
     text {{ font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; text-anchor: middle; }}
     .title {{ font-size: 14px; font-weight: 600; fill: #4b4b4b; }}
+    .start {{ text-anchor: start; }}
     .cefr {{ font-size: 30px; font-weight: 800; fill: #58cc02; }}
     .score {{ font-size: 14px; font-weight: 700; fill: #1cb0f6; }}
     .label {{ font-size: 9px; fill: #777777; }}
