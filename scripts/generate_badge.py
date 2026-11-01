@@ -1,7 +1,8 @@
 """Generate an SVG badge of Duolingo CEFR levels and scores per language.
 
 Reads the Duolingo JWT from the DUOLINGO_JWT environment variable and writes
-the badge to the path given as the first argument (default: duolingo.svg).
+light and dark badges to the paths given as the first and second arguments
+(default: duolingo.svg and duolingo-dark.svg).
 """
 
 import base64
@@ -28,6 +29,22 @@ FLAG_GAP = 6
 COLUMN_WIDTH = 140
 HEIGHT = 120
 PADDING = 10
+
+# Colors per GitHub theme; the README picks one with prefers-color-scheme.
+THEMES = {
+    "light": {
+        "background": "#ffffff",
+        "border": "#e5e5e5",
+        "title": "#4b4b4b",
+        "label": "#777777",
+    },
+    "dark": {
+        "background": "#0d1117",
+        "border": "#30363d",
+        "title": "#f0f6fc",
+        "label": "#9198a1",
+    },
+}
 
 
 def user_id_from_jwt(jwt):
@@ -109,7 +126,8 @@ def fetch_languages(jwt):
     return sorted(languages, key=lambda language: language["score"], reverse=True)
 
 
-def render_svg(languages):
+def render_svg(languages, theme):
+    colors = THEMES[theme]
     width = PADDING * 2 + COLUMN_WIDTH * max(len(languages), 1)
     columns = []
     for i, language in enumerate(languages):
@@ -134,13 +152,13 @@ def render_svg(languages):
     return f"""<svg xmlns="http://www.w3.org/2000/svg" width="{width}" height="{HEIGHT}" viewBox="0 0 {width} {HEIGHT}">
   <style>
     text {{ font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; text-anchor: middle; }}
-    .title {{ font-size: 14px; font-weight: 600; fill: #4b4b4b; }}
+    .title {{ font-size: 14px; font-weight: 600; fill: {colors['title']}; }}
     .start {{ text-anchor: start; }}
     .cefr {{ font-size: 30px; font-weight: 800; fill: #58cc02; }}
     .score {{ font-size: 14px; font-weight: 700; fill: #1cb0f6; }}
-    .label {{ font-size: 9px; fill: #777777; }}
+    .label {{ font-size: 9px; fill: {colors['label']}; }}
   </style>
-  <rect x="0.5" y="0.5" width="{width - 1}" height="{HEIGHT - 1}" rx="12" fill="#ffffff" stroke="#e5e5e5"/>
+  <rect x="0.5" y="0.5" width="{width - 1}" height="{HEIGHT - 1}" rx="12" fill="{colors['background']}" stroke="{colors['border']}"/>
 {chr(10).join(columns)}
 </svg>
 """
@@ -148,10 +166,14 @@ def render_svg(languages):
 
 def main():
     jwt = os.environ["DUOLINGO_JWT"]
-    output = sys.argv[1] if len(sys.argv) > 1 else "duolingo.svg"
+    outputs = {
+        "light": sys.argv[1] if len(sys.argv) > 1 else "duolingo.svg",
+        "dark": sys.argv[2] if len(sys.argv) > 2 else "duolingo-dark.svg",
+    }
     languages = fetch_languages(jwt)
-    with open(output, "w") as f:
-        f.write(render_svg(languages))
+    for theme, output in outputs.items():
+        with open(output, "w") as f:
+            f.write(render_svg(languages, theme))
     for language in languages:
         print(f"{language['title']}: {language['cefr']} {language['score']}/{language['max_score']}")
 

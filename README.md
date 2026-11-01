@@ -1,6 +1,9 @@
 # Duolingo CEFR badge
 
-![Duolingo levels](duolingo.svg)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="duolingo-dark.svg">
+  <img alt="Duolingo levels" src="duolingo.svg">
+</picture>
 
 A daily GitHub Action fetches each Duolingo course and renders `duolingo.svg`, showing every language with a Duolingo Score of 7 or higher:
 
@@ -13,10 +16,13 @@ A daily GitHub Action fetches each Duolingo course and renders `duolingo.svg`, s
 2. Save it as the Actions secret `DUOLINGO_JWT`.
 3. Run the **Update Duolingo badge** workflow (or wait for the daily run).
 
-To embed elsewhere (e.g. your profile README):
+The README shows the badge matching your GitHub theme. To embed elsewhere (e.g. your profile README):
 
-```markdown
-![Duolingo levels](https://raw.githubusercontent.com/Samantha-norrie/duolingo-cefr-badge/main/duolingo.svg)
+```html
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Samantha-norrie/duolingo-cefr-badge/main/duolingo-dark.svg">
+  <img alt="Duolingo levels" src="https://raw.githubusercontent.com/Samantha-norrie/duolingo-cefr-badge/main/duolingo.svg">
+</picture>
 ```
 
 Flags in `assets/flags/` are Duolingo's own course flag artwork (copied from duolingo.com), named by language code.
