@@ -1,8 +1,8 @@
 # Duolingo CEFR badge
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="duolingo-dark.svg">
-  <img alt="Duolingo levels" src="duolingo.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="duolingo-dark.svg?v=2">
+  <img alt="Duolingo levels" src="duolingo.svg?v=2">
 </picture>
 
 A daily GitHub Action fetches your Duolingo profile and courses and renders `duolingo.svg`. The top row shows your avatar, streak, total XP, current league and number of top 3 leaderboard finishes. Below it is every language with a Duolingo Score of 7 or higher:
@@ -20,8 +20,8 @@ The README shows the badge matching your GitHub theme. To embed elsewhere (e.g. 
 
 ```html
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Samantha-norrie/duolingo-cefr-badge/main/duolingo-dark.svg">
-  <img alt="Duolingo levels" src="https://raw.githubusercontent.com/Samantha-norrie/duolingo-cefr-badge/main/duolingo.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/Samantha-norrie/duolingo-cefr-badge/main/duolingo-dark.svg?v=2">
+  <img alt="Duolingo levels" src="https://raw.githubusercontent.com/Samantha-norrie/duolingo-cefr-badge/main/duolingo.svg?v=2">
 </picture>
 ```
 
