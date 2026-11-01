@@ -21,12 +21,12 @@ jobs:
       - name: Generate badge
         env:
           DUOLINGO_JWT: ${{ secrets.DUOLINGO_JWT }}
-        run: python scripts/generate_badge.py duolingo.svg
+        run: python scripts/generate_badge.py duolingo.svg duolingo-dark.svg
 
       - name: Commit badge
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add duolingo.svg
+          git add duolingo.svg duolingo-dark.svg
           git diff --cached --quiet || git commit -m "Update Duolingo badge"
           git push
