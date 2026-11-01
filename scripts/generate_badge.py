@@ -28,6 +28,12 @@ USER_AGENT = (
 )
 MIN_SCORE = 7
 
+# Leaderboard tiers, indexed by the leaderboard's tier field.
+LEAGUES = [
+    "Bronze", "Silver", "Gold", "Sapphire", "Ruby",
+    "Emerald", "Amethyst", "Pearl", "Obsidian", "Diamond",
+]
+
 # Duolingo flag SVGs, named by learning language code.
 FLAGS_DIR = Path(__file__).resolve().parent.parent / "assets" / "flags"
 FLAG_WIDTH = 21
@@ -124,14 +130,13 @@ def fetch_profile(user, jwt):
     # picture is a protocol-relative CDN URL; sizes are path suffixes.
     avatar = fetch(f"https:{user['picture']}/xlarge")
     leaderboard = json.loads(fetch(f"{LEADERBOARD_API}/users/{user['id']}", jwt))
-    # tier indexes league_ids; it's missing when not in a league this week.
+    # tier indexes LEAGUES; it's missing when not in a league this week.
     tier = leaderboard.get("tier")
-    leagues = leaderboard["league_ids"]
     return {
         "avatar": "data:image/png;base64," + base64.b64encode(avatar).decode(),
         "streak": user["streak"],
         "total_xp": user["totalXp"],
-        "league": leagues[tier] if tier is not None and 0 <= tier < len(leagues) else "None",
+        "league": LEAGUES[tier] if tier is not None and 0 <= tier < len(LEAGUES) else "None",
         "top_three": leaderboard["stats"]["top_three_finishes"],
     }
 
@@ -236,7 +241,7 @@ def main():
         "dark": sys.argv[2] if len(sys.argv) > 2 else "duolingo-dark.svg",
     }
     user_id = user_id_from_jwt(jwt)
-    user = get(f"users/{user_id}?fields=id,picture,totalXp,courses", jwt)
+    user = get(f"users/{user_id}?fields=id,picture,streak,totalXp,courses", jwt)
     profile = fetch_profile(user, jwt)
     languages = fetch_languages(user_id, user["courses"], jwt)
     for theme, output in outputs.items():
