@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="580" height="120" viewBox="0 0 580 120">
+  <style>
+    text { font-family: -apple-system, "Segoe UI", Helvetica, Arial, sans-serif; text-anchor: middle; }
+    .title { font-size: 14px; font-weight: 600; fill: #4b4b4b; }
+    .cefr { font-size: 30px; font-weight: 800; fill: #58cc02; }
+    .score { font-size: 14px; font-weight: 700; fill: #1cb0f6; }
+    .label { font-size: 9px; fill: #777777; }
+  </style>
+  <rect x="0.5" y="0.5" width="579" height="119" rx="12" fill="#ffffff" stroke="#e5e5e5"/>
+  <text x="80.0" y="32" class="title">Spanish</text>
+  <text x="80.0" y="70" class="cefr">B1</text>
+  <text x="80.0" y="94" class="score">102/129</text>
+  <text x="80.0" y="108" class="label">Duolingo Score</text>
+  <text x="220.0" y="32" class="title">French</text>
+  <text x="220.0" y="70" class="cefr">A1</text>
+  <text x="220.0" y="94" class="score">38/129</text>
+  <text x="220.0" y="108" class="label">Duolingo Score</text>
+  <text x="360.0" y="32" class="title">Arabic</text>
+  <text x="360.0" y="70" class="cefr">N/A</text>
+  <text x="360.0" y="94" class="score">11/25</text>
+  <text x="360.0" y="108" class="label">Duolingo Score</text>
+  <text x="500.0" y="32" class="title">Portuguese</text>
+  <text x="500.0" y="70" class="cefr">Pre-A1</text>
+  <text x="500.0" y="94" class="score">7/129</text>
+  <text x="500.0" y="108" class="label">Duolingo Score</text>
+</svg>
