@@ -236,7 +236,7 @@ def main():
         "dark": sys.argv[2] if len(sys.argv) > 2 else "duolingo-dark.svg",
     }
     user_id = user_id_from_jwt(jwt)
-    user = get(f"users/{user_id}?fields=id,picture,totalXp,courses", jwt)
+    user = get(f"users/{user_id}?fields=id,picture,streak,totalXp,courses", jwt)
     profile = fetch_profile(user, jwt)
     languages = fetch_languages(user_id, user["courses"], jwt)
     for theme, output in outputs.items():
